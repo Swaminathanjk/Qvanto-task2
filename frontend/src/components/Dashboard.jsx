@@ -100,15 +100,15 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Policy Dashboard</h1>
-          <p className="text-gray-600">Manage insurance policies and approvals</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Policy Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600">Manage insurance policies and approvals</p>
         </div>
         {user.role === 'creator' && (
-          <Link to="/policy/new" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+          <Link to="/policy/new" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm sm:text-base w-full sm:w-auto text-center">
             Create New Policy
           </Link>
         )}
@@ -119,7 +119,7 @@ const Dashboard = () => {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-auto px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
         >
           <option value="all">All Policies</option>
           {user.role === 'creator' && <option value="my_policies">My Policies</option>}
@@ -135,30 +135,30 @@ const Dashboard = () => {
       {/* Policies List */}
       <div className="grid gap-6">
         {filteredPolicies.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No policies found</p>
+          <div className="text-center py-8 sm:py-12">
+            <p className="text-gray-500 text-base sm:text-lg">No policies found</p>
             {user.role === 'creator' && (
-              <Link to="/policy/new" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg mt-4">
+              <Link to="/policy/new" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg mt-4 text-sm sm:text-base">
                 Create Your First Policy
               </Link>
             )}
           </div>
         ) : (
           filteredPolicies.map((policy) => (
-            <div key={policy._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+            <div key={policy._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                       {policy.policyId}
                     </h3>
                     {getStatusBadge(policy.status)}
                     {getFraudCheckBadge(policy.fraudCheck)}
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
                     <div>
-                      <span className="font-medium">Customer:</span> {policy.customerName}
+                      <span className="font-medium">Customer:</span> <span className="break-words">{policy.customerName}</span>
                     </div>
                     <div>
                       <span className="font-medium">Premium:</span> ${policy.premiumAmount.toLocaleString()}
@@ -168,15 +168,15 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div className="mt-2 text-sm text-gray-500">
+                  <div className="mt-2 text-xs sm:text-sm text-gray-500">
                     Created by {policy.creatorName} on {new Date(policy.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 
-                <div className="flex space-x-2 ml-4">
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-4">
                   <Link
                     to={`/policy/${policy._id}`}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none text-center"
                   >
                     View Details
                   </Link>
@@ -184,7 +184,7 @@ const Dashboard = () => {
                   {canEdit(policy) && (
                     <Link
                       to={`/policy/${policy._id}/edit`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none text-center"
                     >
                       Edit
                     </Link>
@@ -194,13 +194,13 @@ const Dashboard = () => {
                     <>
                       <button
                         onClick={() => handleApprove(policy._id, 'approve')}
-                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm"
+                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => handleApprove(policy._id, 'reject')}
-                        className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg text-sm"
+                        className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none"
                       >
                         Reject
                       </button>

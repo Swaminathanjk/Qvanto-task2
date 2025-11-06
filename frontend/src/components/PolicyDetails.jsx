@@ -135,29 +135,29 @@ const PolicyDetails = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Policy Details</h1>
-          <p className="text-gray-600">Policy ID: {policy.policyId}</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Policy Details</h1>
+          <p className="text-sm sm:text-base text-gray-600 break-words">Policy ID: {policy.policyId}</p>
         </div>
-        <Link to="/" className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg">
+        <Link to="/" className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base w-full sm:w-auto text-center">
           Back to Dashboard
         </Link>
       </div>
 
       {/* Policy Information */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Policy Information</h2>
-          <div className="flex space-x-2">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Policy Information</h2>
+          <div className="flex flex-wrap gap-2">
             {getStatusBadge(policy.status)}
             {getFraudCheckBadge(policy.fraudCheck)}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
             <p className="text-gray-900">{policy.customerName}</p>
@@ -192,21 +192,21 @@ const PolicyDetails = () => {
 
       {/* Approval Logs */}
       {policy.approvalLogs && policy.approvalLogs.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Approval History</h2>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Approval History</h2>
           <div className="space-y-4">
             {policy.approvalLogs.map((log, index) => (
-              <div key={index} className="border-l-4 border-gray-200 pl-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium text-gray-900">
+              <div key={index} className="border-l-4 border-gray-200 pl-3 sm:pl-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm sm:text-base text-gray-900">
                       {log.approverName} {log.action} the policy
                     </p>
                     {log.comment && (
-                      <p className="text-gray-600 mt-1">"{log.comment}"</p>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">"{log.comment}"</p>
                     )}
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
                     {formatDate(log.timestamp)}
                   </span>
                 </div>
@@ -217,13 +217,13 @@ const PolicyDetails = () => {
       )}
 
       {/* Actions */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Actions</h2>
-        <div className="flex space-x-4">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Actions</h2>
+        <div className="flex flex-wrap gap-3 sm:gap-4">
                   {canEdit() && (
                     <Link
                       to={`/policy/${id}/edit`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm sm:text-base flex-1 sm:flex-none text-center"
                     >
                       Edit Policy
                     </Link>
@@ -233,7 +233,7 @@ const PolicyDetails = () => {
                     <button
                       onClick={handleSubmit}
                       disabled={actionLoading}
-                      className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base flex-1 sm:flex-none"
                     >
                       {actionLoading ? 'Submitting...' : 'Submit for Approval'}
                     </button>
@@ -244,14 +244,14 @@ const PolicyDetails = () => {
                       <button
                         onClick={() => handleApprove('approve')}
                         disabled={actionLoading}
-                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base flex-1 sm:flex-none"
                       >
                         {actionLoading ? 'Processing...' : 'Approve'}
                       </button>
                       <button
                         onClick={() => handleApprove('reject')}
                         disabled={actionLoading}
-                        className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base flex-1 sm:flex-none"
                       >
                         {actionLoading ? 'Processing...' : 'Reject'}
                       </button>
@@ -261,9 +261,9 @@ const PolicyDetails = () => {
       </div>
 
       {/* Status Information */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 bg-gray-50">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Status Information</h3>
-        <div className="text-sm text-gray-600 space-y-1">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 bg-gray-50">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Status Information</h3>
+        <div className="text-xs sm:text-sm text-gray-600 space-y-1">
           {policy.status === 'draft' && (
             <p>This policy is in draft status. You can edit it or submit it for approval once the fraud check passes.</p>
           )}

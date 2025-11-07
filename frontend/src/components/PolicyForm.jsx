@@ -38,14 +38,28 @@ const PolicyForm = () => {
       const policyData = response.data;
       
       // Check if user can edit this policy
-      if (policyData.createdBy._id !== user.id) {
-        toast.error('You can only edit your own policies');
-        navigate('/');
-        return;
-      }
-      
-      if (policyData.status !== 'draft') {
-        toast.error('You can only edit draft policies');
+      if (user.role === 'creator') {
+        // Creator can edit if policy belongs to them and status is draft or pending_underwriter
+        if (policyData.createdBy._id !== user.id) {
+          toast.error('You can only edit your own policies');
+          navigate('/');
+          return;
+        }
+        
+        if (policyData.status !== 'draft' && policyData.status !== 'pending_underwriter') {
+          toast.error('You can only edit policies before manager approval');
+          navigate('/');
+          return;
+        }
+      } else if (user.role === 'manager') {
+        // Manager can edit if status is pending_manager
+        if (policyData.status !== 'pending_manager') {
+          toast.error('You can only edit policies that are pending manager review');
+          navigate('/');
+          return;
+        }
+      } else {
+        toast.error('You do not have permission to edit policies');
         navigate('/');
         return;
       }
@@ -173,7 +187,7 @@ const PolicyForm = () => {
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 sm:space-x-0">
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(isEdit ? `/policy/${id}` : '/')}
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base w-full sm:w-auto"
             disabled={loading}
           >

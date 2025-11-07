@@ -64,9 +64,29 @@ const PolicyDetails = () => {
   };
 
   const canEdit = () => {
-    return user.role === 'creator' && 
-           policy.createdBy._id === user.id && 
-           policy.status === 'draft';
+    // Creator can edit if policy belongs to them and status is draft or pending_underwriter (before manager approval)
+    if (user.role === 'creator') {
+      return policy.createdBy._id === user.id && 
+             (policy.status === 'draft' || policy.status === 'pending_underwriter');
+    }
+    // Manager can edit if status is pending_manager (before final approval)
+    if (user.role === 'manager') {
+      return policy.status === 'pending_manager';
+    }
+    return false;
+  };
+
+  const canDelete = () => {
+    // Creator can delete if policy belongs to them and manager hasn't approved yet
+    if (user.role === 'creator') {
+      return policy.createdBy._id === user.id && 
+             (policy.status === 'draft' || policy.status === 'pending_underwriter');
+    }
+    // Manager can delete if status is pending_manager or approved (when they have approved)
+    if (user.role === 'manager') {
+      return policy.status === 'pending_manager' || policy.status === 'approved';
+    }
+    return false;
   };
 
   const canApprove = () => {
@@ -108,6 +128,24 @@ const PolicyDetails = () => {
     } catch (error) {
       toast.error(`Failed to ${action} policy`);
       console.error(`Error ${action}ing policy:`, error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this policy? This action cannot be undone.')) {
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await policiesAPI.delete(id);
+      toast.success('Policy deleted successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete policy');
+      console.error('Error deleting policy:', error);
     } finally {
       setActionLoading(false);
     }
@@ -256,6 +294,16 @@ const PolicyDetails = () => {
                         {actionLoading ? 'Processing...' : 'Reject'}
                       </button>
                     </>
+                  )}
+
+                  {canDelete() && (
+                    <button
+                      onClick={handleDelete}
+                      disabled={actionLoading}
+                      className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base flex-1 sm:flex-none"
+                    >
+                      {actionLoading ? 'Deleting...' : 'Delete Policy'}
+                    </button>
                   )}
         </div>
       </div>

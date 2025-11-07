@@ -60,28 +60,10 @@ const Dashboard = () => {
     );
   };
 
-  const canEdit = (policy) => {
-    return user.role === 'creator' && policy.createdBy._id === user.id && policy.status === 'draft';
-  };
-
   const canApprove = (policy) => {
     if (user.role === 'underwriter' && policy.status === 'pending_underwriter') return true;
     if (user.role === 'manager' && policy.status === 'pending_manager') return true;
     return false;
-  };
-
-  const handleApprove = async (policyId, action) => {
-    try {
-      const comment = prompt(`Enter comment for ${action}:`);
-      if (comment === null) return; // User cancelled
-
-      await policiesAPI.approve(policyId, action, comment);
-      toast.success(`Policy ${action}d successfully`);
-      fetchPolicies();
-    } catch (error) {
-      toast.error(`Failed to ${action} policy`);
-      console.error(`Error ${action}ing policy:`, error);
-    }
   };
 
   const filteredPolicies = policies.filter(policy => {
@@ -176,36 +158,10 @@ const Dashboard = () => {
                 <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-4">
                   <Link
                     to={`/policy/${policy._id}`}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none text-center"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none text-center"
                   >
                     View Details
                   </Link>
-                  
-                  {canEdit(policy) && (
-                    <Link
-                      to={`/policy/${policy._id}/edit`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none text-center"
-                    >
-                      Edit
-                    </Link>
-                  )}
-                  
-                  {canApprove(policy) && (
-                    <>
-                      <button
-                        onClick={() => handleApprove(policy._id, 'approve')}
-                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleApprove(policy._id, 'reject')}
-                        className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm flex-1 sm:flex-none"
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             </div>

@@ -110,8 +110,8 @@ router.post('/', authenticateToken, requireRole(['creator']), async (req, res) =
   }
 });
 
-// Update policy (only by creator and only if not yet approved)
-router.put('/:id', authenticateToken, requireRole(['creator']), async (req, res) => {
+// Update policy (creator can update before manager approval, manager can update when pending_manager)
+router.put('/:id', authenticateToken, requireRole(['creator', 'manager']), async (req, res) => {
   try {
     const policy = await Policy.findById(req.params.id);
 
@@ -119,14 +119,23 @@ router.put('/:id', authenticateToken, requireRole(['creator']), async (req, res)
       return res.status(404).json({ message: 'Policy not found' });
     }
 
-    // Check if policy belongs to the creator
-    if (policy.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Access denied' });
+    // Creator can update if policy belongs to them and status is draft or pending_underwriter
+    if (req.user.role === 'creator') {
+      if (policy.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Creator can update before manager approval (draft or pending_underwriter)
+      if (policy.status !== 'draft' && policy.status !== 'pending_underwriter') {
+        return res.status(400).json({ message: 'Policy cannot be updated after manager approval' });
+      }
     }
 
-    // Check if policy can still be edited (only draft status)
-    if (policy.status !== 'draft') {
-      return res.status(400).json({ message: 'Policy cannot be edited after submission' });
+    // Manager can update if status is pending_manager (before final approval)
+    if (req.user.role === 'manager') {
+      if (policy.status !== 'pending_manager') {
+        return res.status(400).json({ message: 'Policy can only be updated when pending manager review' });
+      }
     }
 
     const { customerName, premiumAmount, productType } = req.body;
@@ -138,7 +147,7 @@ router.put('/:id', authenticateToken, requireRole(['creator']), async (req, res)
 
     await policy.save();
 
-    console.log(`✏️ Policy Updated: ${policy.policyId} by ${req.user.name}`);
+    console.log(`✏️ Policy Updated: ${policy.policyId} by ${req.user.name} (${req.user.role})`);
 
     res.json(policy);
   } catch (error) {
@@ -245,8 +254,8 @@ router.post('/:id/approve', authenticateToken, requireRole(['underwriter', 'mana
   }
 });
 
-// Delete policy (only by creator and only if draft)
-router.delete('/:id', authenticateToken, requireRole(['creator']), async (req, res) => {
+// Delete policy (creator can delete before manager approval, manager can delete when they've approved)
+router.delete('/:id', authenticateToken, requireRole(['creator', 'manager']), async (req, res) => {
   try {
     const policy = await Policy.findById(req.params.id);
 
@@ -254,19 +263,28 @@ router.delete('/:id', authenticateToken, requireRole(['creator']), async (req, r
       return res.status(404).json({ message: 'Policy not found' });
     }
 
-    // Check if policy belongs to the creator
-    if (policy.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Access denied' });
+    // Creator can delete if policy belongs to them and manager hasn't approved yet
+    if (req.user.role === 'creator') {
+      if (policy.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Creator can delete only if status is draft or pending_underwriter (before manager approval)
+      if (policy.status !== 'draft' && policy.status !== 'pending_underwriter') {
+        return res.status(400).json({ message: 'Policy cannot be deleted after manager approval. Only manager can delete at this stage.' });
+      }
     }
 
-    // Check if policy can be deleted (only draft status)
-    if (policy.status !== 'draft') {
-      return res.status(400).json({ message: 'Policy cannot be deleted after submission' });
+    // Manager can delete if status is pending_manager or approved (when they have approved)
+    if (req.user.role === 'manager') {
+      if (policy.status !== 'pending_manager' && policy.status !== 'approved') {
+        return res.status(400).json({ message: 'Policy can only be deleted when pending manager review or after manager approval' });
+      }
     }
 
     await Policy.findByIdAndDelete(req.params.id);
 
-    console.log(`🗑️ Policy Deleted: ${policy.policyId} by ${req.user.name}`);
+    console.log(`🗑️ Policy Deleted: ${policy.policyId} by ${req.user.name} (${req.user.role})`);
 
     res.json({ message: 'Policy deleted successfully' });
   } catch (error) {

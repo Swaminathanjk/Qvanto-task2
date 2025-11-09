@@ -5,9 +5,9 @@ const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  // if (!context) {
+  //   throw new Error('useAuth must be used within an AuthProvider');
+  // }
   return context;
 };
 
@@ -38,9 +38,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      console.log('Attempting login with:', credentials.email);
+      // console.log('Attempting login with:', credentials.email);
       const response = await authAPI.login(credentials);
-      console.log('Login response:', response.data);
+      // console.log('Login response:', response.data);
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);

@@ -309,7 +309,7 @@ const PolicyDetails = () => {
       </div>
 
       {/* Status Information */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 bg-gray-50">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 bg-gray">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Status Information</h3>
         <div className="text-xs sm:text-sm text-gray-600 space-y-1">
           {policy.status === 'draft' && (
